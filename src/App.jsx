@@ -5,6 +5,7 @@ import { TodoContext } from "./assets/contexts/todoContext";
 import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 
+import TodosProvider from "./assets/contexts/todoContext";
 import { ToastProvider } from "./assets/contexts/ToastContext";
 const theme = createTheme({
   typography: {
@@ -41,23 +42,23 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <ToastProvider>
-        <div
-          className="App"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            background: "#191b1f",
-            height: "100vh",
-            direction: "rtl",
-          }}
-        >
-          <TodoContext.Provider value={{ todos: todos, setTodos: setTodos }}>
+      <TodosProvider>
+        <ToastProvider>
+          <div
+            className="App"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              background: "#191b1f",
+              height: "100vh",
+              direction: "rtl",
+            }}
+          >
             <TodoList />
-          </TodoContext.Provider>
-        </div>
-      </ToastProvider>
+          </div>
+        </ToastProvider>
+      </TodosProvider>
     </ThemeProvider>
   );
 }

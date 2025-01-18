@@ -13,11 +13,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Todo from "./Todo";
 
 // others
-import { v4 as uuidv4 } from "uuid";
-import { TodoContext } from "../assets/contexts/todoContext";
 import { useToast } from "../assets/contexts/ToastContext";
-import { useState, useContext, useEffect, useMemo } from "react";
-
+import { useState, useEffect, useMemo, useReducer } from "react";
+import { useTodos } from "../assets/contexts/todoContext";
 //dialgue
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -26,13 +24,13 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 export default function TodoList() {
+  const { todos, dispatch } = useTodos();
   const { showHideToast } = useToast();
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [dialogTodo, setDialogTodo] = useState("");
 
-  const { todos, setTodos } = useContext(TodoContext);
   const [titleInput, setTitleInput] = useState("");
   const [displayedTodosType, setDisplayedTodosType] = useState("all");
   // filter array
@@ -61,20 +59,18 @@ export default function TodoList() {
   }
 
   useEffect(() => {
-    const storageTodos = JSON.parse(localStorage.getItem("todos")) ?? [];
-    setTodos(storageTodos);
+    dispatch({
+      type: "get",
+    });
   }, []);
 
   function handleAddClick() {
-    const newTodo = {
-      id: uuidv4(),
-      title: titleInput,
-      details: "",
-      isCompleted: false,
-    };
-    const updatedTodos = [...todos, newTodo];
-    setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    dispatch({
+      type: "added",
+      payload: {
+        newTitle: titleInput,
+      },
+    });
     setTitleInput("");
     showHideToast("تم اضافة مهمة جديدة بنجاح");
   }
@@ -100,15 +96,10 @@ export default function TodoList() {
     setShowDeleteDialog(false);
   }
   function handleDeleteConfirm() {
-    const updatedTodos = todos.filter((t) => {
-      if (t.id == dialogTodo.id) {
-        return false;
-      } else {
-        return true;
-      }
+    dispatch({
+      type: "deleted",
+      payload: dialogTodo,
     });
-    setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
     setShowDeleteDialog(false);
     showHideToast("تم الحذف بنجاح ");
   }
@@ -121,16 +112,11 @@ export default function TodoList() {
     setShowUpdateDialog(true);
   }
   function handleUpdateConfirm() {
-    const updatedTodos = todos.map((t) => {
-      if (t.id == dialogTodo.id) {
-        return { ...t, title: dialogTodo.title, details: dialogTodo.details };
-      } else {
-        return t;
-      }
+    dispatch({
+      type: "updated",
+      payload: dialogTodo,
     });
-    setTodos(updatedTodos);
     setShowUpdateDialog(false);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
     showHideToast("تم التعديل بنجاح");
   }
   return (

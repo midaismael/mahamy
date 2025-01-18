@@ -8,22 +8,13 @@ import CheckIcon from "@mui/icons-material/Check";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 
-import { TodoContext } from "../assets/contexts/todoContext";
+import { useTodos } from "../assets/contexts/todoContext";
 import { useToast } from "../assets/contexts/ToastContext";
 import { useContext, useState } from "react";
 
-// dialog
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
-
 export default function Todo({ todo, showDelete, showUpdate }) {
-  const { todos, setTodos } = useContext(TodoContext);
   const { showHideToast } = useToast();
+  const { todos, dispatch } = useTodos();
   // const [editedTodo, setEditedTodo] = useState({
   //   title: todo.title,
   //   details: todo.details,
@@ -37,14 +28,10 @@ export default function Todo({ todo, showDelete, showUpdate }) {
   }
 
   function handleCheckClick() {
-    const updatedTodos = todos.map((t) => {
-      if (t.id == todo.id) {
-        t.isCompleted = !t.isCompleted;
-      }
-      return t;
+    dispatch({
+      type: "toggleCompleted",
+      payload: todo,
     });
-    setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
     showHideToast("تم التعديل بالنجاح");
   }
 
